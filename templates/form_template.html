@@ -108,30 +108,30 @@
             <!-- Header Section -->
             {% if form_data.header_data %}
             <div class="header-section">
-                <h3><i data-feather="info"></i> Evento:</h3>
+                <h3><i data-feather="info"></i> Evento: <span class="header-value">{{ form_data.header_data.Viagem if form_data.header_data.Viagem else '' }}</span></h3>
                 <div class="header-data">
-                    {% if form_data.header_data.get('Local') %}
+                    {% if form_data.header_data.get('Local') or form_data.header_data.get('text_mm0vswrr') %}
                     <div class="header-item">
                         <i data-feather="map-pin" class="header-icon"></i>
-                        <strong>Local:</strong> <span class="header-value">{{ form_data.header_data.Local }}</span>
+                        <strong>Local:</strong> <span class="header-value">{{ form_data.header_data.Local or form_data.header_data.text_mm0vswrr }}</span>
                     </div>
                     {% endif %}
-                    {% if form_data.header_data.get('Cidade') %}
+                    {% if form_data.header_data.get('Cidade') or form_data.header_data.get('text_mm12sr3v') %}
                     <div class="header-item">
                         <i data-feather="navigation" class="header-icon"></i>
-                        <strong>Cidade:</strong> <span class="header-value">{{ form_data.header_data.Cidade }}</span>
+                        <strong>Cidade:</strong> <span class="header-value">{{ form_data.header_data.Cidade or form_data.header_data.text_mm12sr3v }}</span>
                     </div>
                     {% endif %}
-                    {% if form_data.header_data.get('Data') %}
+                    {% if form_data.header_data.get('Data') or form_data.header_data.get('date_mm0v3rx9') %}
                     <div class="header-item">
                         <i data-feather="calendar" class="header-icon"></i>
-                        <strong>Data:</strong> <span class="header-value">{{ form_data.header_data.Data }}</span>
+                        <strong>Data:</strong> <span class="header-value">{{ form_data.header_data.Data or form_data.header_data.date_mm0v3rx9 }}</span>
                     </div>
                     {% endif %}
-                    {% if form_data.header_data.get('Cliente') %}
+                    {% if form_data.header_data.get('Cliente') or form_data.header_data.get('text_mm0vy6n8') %}
                     <div class="header-item">
                         <i data-feather="user" class="header-icon"></i>
-                        <strong>Cliente:</strong> <span class="header-value">{{ form_data.header_data.Cliente }}</span>
+                        <strong>Cliente:</strong> <span class="header-value">{{ form_data.header_data.Cliente or form_data.header_data.text_mm0vy6n8 }}</span>
                     </div>
                     {% endif %}
                 </div>
