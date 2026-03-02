@@ -77,9 +77,13 @@ Sua participação é essencial para nossa melhoria contínua."""
 
                     # Map specific columns to header fields
                     column_mapping = {
+                        'text_mm0vswrr': 'Local',
+                        'text_mm12sr3v': 'Cidade',
+                        'date_mm0v3rx9': 'Data',
+                        'text_mm0vy6n8': 'Cliente',
                         'lookup_mkrjh91x': 'Destino',
-                        'lookup_mkrjpdz0': 'Data',
-                        'lookup_mkrb9ns5': 'Cliente',
+                        'lookup_mkrjpdz0': 'Data_Lookup',
+                        'lookup_mkrb9ns5': 'Cliente_Lookup',
                         'lookup_mkrkwqep': 'MirrorColumnValue'  # For destination board
                     }
 
