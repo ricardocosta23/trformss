@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ form_data.title }}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .submit-button.loading {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .submit-button.loading:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .submit-button.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        .error-message {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid #dc3545;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .error-message .text-danger {
+            color: #dc3545 !important;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin: 0;
+            display: block;
+        }
+
+        .error-message.show {
+            display: block !important;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .instructions-section {
+            margin-bottom: 30px;
+        }
+
+        .instructions-title {
+            color: #495057;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .instructions-content {
+            color: #495057;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="form-{{ form_data.type }}"{% if form_data.custom_style %} style="{{ form_data.custom_style|safe }}"{% endif %}>
+    <div class="survey-container">
+        <div class="survey-card">
+            <div class="survey-header">
+                <div class="header-icons">
+                    <div class="icon-wrapper">
+                        <i data-feather="clipboard"></i>
+                    </div>
+                </div>
+                <h1 class="survey-title">{{ form_data.title }}</h1>
+                <p class="survey-subtitle">{{ form_data.subtitle }}</p>
+            </div>
+
+            <!-- Header Section -->
+            {% if form_data.header_data %}
+            <div class="header-section">
+                <h3><i data-feather="info"></i> Informações da Viagem</h3>
+                <div class="header-data">
+                    {% if form_data.header_data.get('Viagem') %}
+                    <div class="header-item">
+                        <i data-feather="map-pin" class="header-icon"></i>
+                        <strong>Viagem:</strong> <span class="header-value">{{ form_data.header_data.Viagem }}</span>
+                    </div>
+                    {% endif %}
+                    {% if form_data.header_data.get('Destino') %}
+                    <div class="header-item">
+                        <i data-feather="navigation" class="header-icon"></i>
+                        <strong>Destino:</strong> <span class="header-value">{{ form_data.header_data.Destino }}</span>
+                    </div>
+                    {% endif %}
+                    {% if form_data.header_data.get('Data') %}
+                    <div class="header-item">
+                        <i data-feather="calendar" class="header-icon"></i>
+                        <strong>Data:</strong> <span class="header-value">{{ form_data.header_data.Data }}</span>
+                    </div>
+                    {% endif %}
+                    {% if form_data.header_data.get('Cliente') %}
+                    <div class="header-item">
+                        <i data-feather="user" class="header-icon"></i>
+                        <strong>Cliente:</strong> <span class="header-value">{{ form_data.header_data.Cliente }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('submit_form', form_id=form_id) }}" id="surveyForm">
+               <br>
+                <!-- Questions Title Section -->
+                {% if questions_title %}
+                <div class="form-section-header">
+                    <h3 class="questions-section-title">{{ questions_title }}</h3>
+                    <div class="section-divider"></div>
+                </div>
+                {% endif %}
+
+                <!-- Instructions Section (for Guias, Clientes, and Fornecedores forms) -->
+                {% if form_data.type == 'guias' or form_data.type == 'clientes' or form_data.type == 'fornecedores' %}
+                    {% if form_data.instructions_text and form_data.instructions_text|length > 0 %}
+                <div class="instructions-section">
+                    <div class="instructions-title">ⓘ Instruções de Preenchimento</div>
+                    <div class="instructions-content">{{ form_data.instructions_text }}</div>
+                </div>
+                    {% endif %}
+                {% endif %}
+
+                {% for item in form_data.questions %}
+                {% if item.type == 'divider' %}
+                    <div class="form-section-header">
+                        <h4 class="section-title">
+                            {{ item.title }}
+                        </h4>
+                        <div class="section-divider"></div>
+                    </div>
+                {% else %}
+                {% set question = item %}
+                {% if question.type == 'monday_column' %}
+                    {% if question.column_value and question.column_value != 'Dados não encontrados' and question.column_value != 'Erro ao carregar dados' and question.column_value != 'Dados não disponíveis' and question.column_value != 'Configuração incompleta' and question.column_value.strip() != '' %}
+                    <div class="question-section" {% if question.conditional %} data-depends-on="{{ question.conditional.depends_on }}" data-show-if="{{ question.conditional.show_if or 'Sim' }}" style="display: none;" {% endif %}>
+                        <div class="hotel-rating">
+                            <label class="rating-label">{{ question.column_value }}{% if question.required %}<span style="color: red;">*</span>{% endif %}</label>
+                            <div class="rating-scale-small">
+                                <div class="rating-numbers">
+                                    {% for i in range(0, 11) %}
+                                    <div class="rating-circle" data-value="{{ i }}" onclick="selectRating('{{ question.id }}', {{ i }})">
+                                        {{ i }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="{{ question.id }}" id="{{ question.id }}_input" 
+                                       {% if question.required %}required{% endif %}>
+                            </div>
+                        </div>
+                        <!-- Error message for monday_column questions -->
+                        <div class="error-message d-none" id="error-{{ question.id }}">
+                            <small class="text-danger">* Resposta obrigatória!</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="question-section" {% if question.conditional %} data-depends-on="{{ question.conditional.depends_on }}" data-show-if="{{ question.conditional.show_if or 'Sim' }}" style="display: none;" {% endif %}>
+                    {% if question.type == 'yesno' %}
+                    <div class="yes-no-question">
+                        <label class="yes-no-label">{{ question.text }}{% if question.required %}<span style="color: red;">*</span>{% endif %}</label>
+                        <div class="yes-no-options">
+                            <label class="yes-no-option" for="{{ question.id }}_yes">
+                                <input type="radio" id="{{ question.id }}_yes" name="{{ question.id }}" value="Sim" 
+                                       {% if question.required %}required{% endif %}>
+                                <span>Sim</span>
+                            </label>
+                            <label class="yes-no-option" for="{{ question.id }}_no">
+                                <input type="radio" id="{{ question.id }}_no" name="{{ question.id }}" value="Não" 
+                                       {% if question.required %}required{% endif %}>
+                                <span>Não</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {% elif question.type == 'rating' %}
+                    <div class="hotel-rating">
+                        <label class="rating-label">{{ question.text }}{% if question.required %}<span style="color: red;">*</span>{% endif %}</label>
+                        <div class="rating-scale-small">
+                            <div class="rating-numbers">
+                                {% for i in range(0, 11) %}
+                                <div class="rating-circle" data-value="{{ i }}" onclick="selectRating('{{ question.id }}', {{ i }})">
+                                    {{ i }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="{{ question.id }}" id="{{ question.id }}_input" 
+                                   {% if question.required %}required{% endif %}>
+                        </div>
+                    </div>
+
+                    {% elif question.type == 'text' %}
+                    <label for="{{ question.id }}" class="feedback-label">
+                        <i data-feather="edit-3"></i>
+                        {{ question.text }}{% if question.required %}<span style="color: red;">*</span>{% endif %}
+                    </label>
+                    <input type="{% if question.destination_column and question.destination_column.startswith('numeric_') %}number{% else %}text{% endif %}" 
+                           id="{{ question.id }}" name="{{ question.id }}" 
+                           class="form-control" {% if question.required %}required{% endif %}
+                           {% if question.destination_column and question.destination_column.startswith('numeric_') %}step="any"{% endif %}
+                           style="padding: var(--spacing-md); border: 2px solid hsl(var(--gray-300)); border-radius: var(--radius-lg);">
+
+                    {% elif question.type == 'longtext' %}
+                    <label for="{{ question.id }}" class="feedback-label">
+                        <i data-feather="message-square"></i>
+                        {{ question.text }}{% if question.required %}<span style="color: red;">*</span>{% endif %}
+                    </label>
+                    <textarea id="{{ question.id }}" name="{{ question.id }}" 
+                              class="feedback-textarea" rows="4" maxlength="2000" {% if question.required %}required{% endif %}
+                              placeholder="Digite sua resposta aqui..." oninput="updateCharCount(this)"></textarea>
+                    <small class="text-muted char-counter" id="counter-{{ question.id }}">0 / 2000 caracteres</small>
+
+                    {% elif question.type == 'dropdown' %}
+                    <label for="{{ question.id }}" class="feedback-label">
+                        <i data-feather="list"></i>
+                        {{ question.text }}{% if question.required %}<span style="color: red;">*</span>{% endif %}
+                    </label>
+                    <select id="{{ question.id }}" name="{{ question.id }}" 
+                            class="form-control" {% if question.required %}required{% endif %}
+                            style="padding: var(--spacing-md); border: 2px solid hsl(var(--gray-300)); border-radius: var(--radius-lg);">
+                        <option value="">Selecione uma opção</option>
+                        {% if question.dropdown_options %}
+                            {% for option in question.dropdown_options.split(';') %}
+                                {% if option.strip() %}
+                                    <option value="{{ option.strip() }}">{{ option.strip() }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+
+                    {% endif %}
+
+                    <!-- Error message for ALL question types -->
+                    <div class="error-message d-none" id="error-{{ question.id }}">
+                        <small class="text-danger">* Resposta obrigatória!</small>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+
+                <div class="submit-section">
+                    <button type="submit" class="submit-button">
+                        <i data-feather="send" class="me-2"></i>
+                        Enviar Formulário
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Character counter for long text fields
+        function updateCharCount(textarea) {
+            const counterId = 'counter-' + textarea.id;
+            const counter = document.getElementById(counterId);
+            if (counter) {
+                const len = textarea.value.length;
+                counter.textContent = len + ' / 2000 caracteres';
+                if (len >= 1900) {
+                    counter.style.color = '#dc3545';
+                } else if (len >= 1500) {
+                    counter.style.color = '#ffc107';
+                } else {
+                    counter.style.color = '#6c757d';
+                }
+            }
+        }
+
+        // Rating selection function
+        function selectRating(questionId, value) {
+            // Remove selected class from all circles in this question
+            document.querySelectorAll(`[onclick*="${questionId}"]`).forEach(circle => {
+                circle.classList.remove('selected');
+            });
+
+            // Add selected class to clicked circle
+            event.target.classList.add('selected');
+
+            // Set hidden input value
+            const hiddenInput = document.getElementById(`${questionId}_input`);
+            if (hiddenInput) {
+                hiddenInput.value = value;
+            }
+        }
+
+        // Handle conditional questions
+        function handleConditionalQuestions() {
+            const conditionalQuestions = document.querySelectorAll('[data-depends-on]');
+
+            console.log('🔄 Initializing conditional questions:', conditionalQuestions.length);
+
+            conditionalQuestions.forEach((questionElement, index) => {
+                const dependsOn = questionElement.getAttribute('data-depends-on');
+                const showIf = questionElement.getAttribute('data-show-if') || 'yes';
+
+                console.log(`Setting up conditional question ${index + 1}: depends on "${dependsOn}", show if "${showIf}"`);
+
+                // ALWAYS start hidden
+                questionElement.style.display = 'none';
+
+                // Remove required attributes initially for all hidden questions
+                const hiddenInputs = questionElement.querySelectorAll('input[required], textarea[required], select[required]');
+                hiddenInputs.forEach(hiddenInput => {
+                    hiddenInput.setAttribute('data-originally-required', 'true');
+                    hiddenInput.removeAttribute('required');
+                });
+
+                if (dependsOn) {
+                    // Find parent question inputs
+                    const dependentInputs = document.querySelectorAll(`input[name="${dependsOn}"], select[name="${dependsOn}"]`);
+
+                    console.log(`Found ${dependentInputs.length} dependent inputs for "${dependsOn}"`);
+
+                    dependentInputs.forEach(input => {
+                        // Add change listener
+                        input.addEventListener('change', function() {
+                            console.log(`Parent question "${dependsOn}" changed to: "${this.value}"`);
+                            toggleConditionalQuestion(questionElement, this.value, showIf);
+                        });
+
+                        // Check initial state - but question should remain hidden initially
+                        if (input.type === 'radio' && input.checked) {
+                            console.log(`Initial state: radio "${dependsOn}" is checked with value "${input.value}"`);
+                            toggleConditionalQuestion(questionElement, input.value, showIf);
+                        } else if (input.type !== 'radio' && input.value) {
+                            console.log(`Initial state: field "${dependsOn}" has value "${input.value}"`);
+                            toggleConditionalQuestion(questionElement, input.value, showIf);
+                        }
+                    });
+                }
+            });
+
+            // Force initial state check for all conditional dependencies
+            console.log('🔄 Forcing initial state check for conditional questions...');
+            document.querySelectorAll('[data-depends-on]').forEach(questionElement => {
+                const dependsOn = questionElement.getAttribute('data-depends-on');
+                const showIf = questionElement.getAttribute('data-show-if') || 'yes';
+
+                console.log(`Checking initial state for conditional question depending on: ${dependsOn}`);
+
+                // Check for checked radio buttons
+                const checkedRadio = document.querySelector(`input[name="${dependsOn}"]:checked`);
+                if (checkedRadio) {
+                    console.log(`Found checked radio: ${checkedRadio.value}`);
+                    toggleConditionalQuestion(questionElement, checkedRadio.value, showIf);
+                }
+
+                // Check for select elements with values
+                const selectElement = document.querySelector(`select[name="${dependsOn}"]`);
+                if (selectElement && selectElement.value) {
+                    console.log(`Found select with value: ${selectElement.value}`);
+                    toggleConditionalQuestion(questionElement, selectElement.value, showIf);
+                }
+
+                // Check for text inputs with values
+                const textInput = document.querySelector(`input[type="text"][name="${dependsOn}"], textarea[name="${dependsOn}"]`);
+                if (textInput && textInput.value) {
+                    console.log(`Found text input with value: ${textInput.value}`);
+                    toggleConditionalQuestion(questionElement, textInput.value, showIf);
+                }
+            });
+        }
+
+        function toggleConditionalQuestion(questionElement, currentValue, showIf) {
+            console.log(`🔄 Toggle conditional: currentValue="${currentValue}", targetValue="${showIf}"`);
+
+            let shouldShow = false;
+
+            // If showIf is empty or not specified, show when parent is "Sim"
+            if (!showIf || showIf === '') {
+                shouldShow = (currentValue === 'Sim');
+            } else {
+                // Use exact match with showIf value
+                shouldShow = (currentValue === showIf);
+            }
+
+            console.log(`Should show: ${shouldShow}`);
+
+            if (shouldShow) {
+                console.log('✅ Showing conditional question');
+                questionElement.style.display = 'block';
+                questionElement.style.opacity = '0';
+                questionElement.style.transform = 'translateY(-10px)';
+
+                // Restore required attributes for visible questions
+                const conditionalInputs = questionElement.querySelectorAll('input[data-originally-required], textarea[data-originally-required], select[data-originally-required]');
+                conditionalInputs.forEach(input => {
+                    input.setAttribute('required', 'required');
+                    console.log(`Restored required attribute for: ${input.name || input.id}`);
+                });
+
+                setTimeout(() => {
+                    questionElement.style.transition = 'all 0.3s ease';
+                    questionElement.style.opacity = '1';
+                    questionElement.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                console.log('❌ Hiding conditional question');
+                questionElement.style.display = 'none';
+                questionElement.style.opacity = '';
+                questionElement.style.transform = '';
+                questionElement.style.transition = '';
+
+                // Clear values from hidden questions and remove required attributes
+                const hiddenInputs = questionElement.querySelectorAll('input, textarea, select');
+                hiddenInputs.forEach(hiddenInput => {
+                    if (hiddenInput.type === 'radio' || hiddenInput.type === 'checkbox') {
+                        hiddenInput.checked = false;
+                    } else if (hiddenInput.type === 'hidden') {
+                        // Clear hidden input values (like ratings)
+                        hiddenInput.value = '';
+                    } else if (hiddenInput.type !== 'hidden') {
+                        hiddenInput.value = '';
+                    }
+
+                    // Store original required state and remove required attribute
+                    if (hiddenInput.hasAttribute('required')) {
+                        hiddenInput.setAttribute('data-originally-required', 'true');
+                        hiddenInput.removeAttribute('required');
+                        console.log(`Removed required attribute from: ${hiddenInput.name || hiddenInput.id}`);
+                    }
+                });
+
+                // Also clear any selected rating circles
+                const ratingCircles = questionElement.querySelectorAll('.rating-circle.selected');
+                ratingCircles.forEach(circle => {
+                    circle.classList.remove('selected');
+                });
+            }
+        }
+
+        // Comprehensive debugging system
+        function enableDebugMode() {
+            window.formDebugMode = true;
+            console.log('🔍 FORM DEBUG MODE ENABLED');
+
+            // Add visual indicator
+            const debugIndicator = document.createElement('div');
+            debugIndicator.id = 'debug-indicator';
+            debugIndicator.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                background: #ff4444;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                z-index: 9999;
+                font-family: monospace;
+            `;
+            debugIndicator.textContent = 'DEBUG MODE';
+            document.body.appendChild(debugIndicator);
+        }
+
+        function logDebug(message, data = null) {
+            if (window.formDebugMode) {
+                console.log(`🔍 DEBUG: ${message}`, data || '');
+            }
+        }
+
+        function analyzeFormStructure() {
+            console.log('📊 FORM STRUCTURE ANALYSIS');
+            console.log('==========================');
+
+            // Analyze all question sections
+            const questionSections = document.querySelectorAll('.question-section');
+            console.log(`Found ${questionSections.length} question sections`);
+
+            questionSections.forEach((section, index) => {
+                console.log(`\n--- Section ${index + 1} ---`);
+                console.log('Section element:', section);
+                console.log('Display style:', window.getComputedStyle(section).display);
+                console.log('Is visible:', section.offsetHeight > 0);
+
+                // Check for inputs in this section
+                const inputs = section.querySelectorAll('input, textarea, select');
+                console.log(`Inputs found: ${inputs.length}`);
+
+                inputs.forEach((input, inputIndex) => {
+                    console.log(`  Input ${inputIndex + 1}:`, {
+                        type: input.type,
+                        name: input.name,
+                        id: input.id,
+                        required: input.required,
+                        value: input.value,
+                        checked: input.checked
+                    });
+                });
+
+                // Check for error div
+                const errorDiv = section.querySelector('.error-message');
+                if (errorDiv) {
+                    console.log(`Error div found:`, {
+                        id: errorDiv.id,
+                        display: errorDiv.style.display,
+                        computed_display: window.getComputedStyle(errorDiv).display,
+                        classes: errorDiv.className
+                    });
+                } else {
+                    console.log('❌ No error div found in this section');
+                }
+            });
+
+            // Analyze all error divs
+            const allErrorDivs = document.querySelectorAll('.error-message');
+            console.log(`\n📋 ALL ERROR DIVS (${allErrorDivs.length})`);
+            allErrorDivs.forEach((div, index) => {
+                console.log(`Error div ${index + 1}:`, {
+                    id: div.id,
+                    display: div.style.display,
+                    computed_display: window.getComputedStyle(div).display,
+                    parent: div.parentElement?.className || 'no parent'
+                });
+            });
+        }
+
+        function testErrorMessages() {
+            console.log('🧪 TESTING ERROR MESSAGES');
+            console.log('=========================');
+
+            const errorDivs = document.querySelectorAll('.error-message');
+            console.log(`Found ${errorDivs.length} error divs`);
+
+            if (errorDivs.length === 0) {
+                console.error('❌ NO ERROR DIVS FOUND! This is the problem.');
+                return;
+            }
+
+            errorDivs.forEach((div, index) => {
+                console.log(`Testing error div ${index + 1}:`, div.id);
+                div.style.display = 'block';
+                div.classList.add('show');
+                console.log('✅ Error div should now be visible');
+            });
+        }
+
+        function testFormValidation() {
+            console.log('🔬 TESTING FORM VALIDATION');
+            console.log('===========================');
+
+            // Simulate form submission validation
+            const visibleQuestionSections = Array.from(document.querySelectorAll('.question-section')).filter(section => {
+                return section.style.display !== 'none';
+            });
+
+            console.log(`Found ${visibleQuestionSections.length} visible question sections`);
+
+            visibleQuestionSections.forEach((section, index) => {
+                console.log(`\n--- Validating Section ${index + 1} ---`);
+
+                let sectionHasError = false;
+                let questionId = null;
+
+                // Check radio buttons
+                const radioButtons = section.querySelectorAll('input[type="radio"][required]');
+                if (radioButtons.length > 0) {
+                    const radioName = radioButtons[0].name;
+                    const isChecked = Array.from(radioButtons).some(radio => radio.checked);
+                    console.log(`Radio group "${radioName}": ${isChecked ? 'VALID' : 'INVALID'}`);
+
+                    if (!isChecked) {
+                        sectionHasError = true;
+                        questionId = radioName;
+                    }
+                }
+
+                // Check hidden inputs (ratings)
+                const ratingInput = section.querySelector('input[type="hidden"][required]');
+                if (ratingInput && !sectionHasError) {
+                    const isEmpty = !ratingInput.value || ratingInput.value.trim() === '';
+                    console.log(`Rating input "${ratingInput.name}": ${isEmpty ? 'INVALID' : 'VALID'} (value: "${ratingInput.value}")`);
+
+                    if (isEmpty) {
+                        sectionHasError = true;
+                        questionId = ratingInput.name.replace('_input', '');
+                    }
+                }
+
+                // Check text fields
+                const textFields = section.querySelectorAll('input[type="text"][required], textarea[required], select[required]');
+                textFields.forEach(field => {
+                    if (!sectionHasError) {
+                        const isEmpty = !field.value || field.value.trim() === '';
+                        console.log(`Text field "${field.name}": ${isEmpty ? 'INVALID' : 'VALID'} (value: "${field.value}")`);
+
+                        if (isEmpty) {
+                            sectionHasError = true;
+                            questionId = field.name || field.id;
+                        }
+                    }
+                });
+
+                if (sectionHasError) {
+                    console.log(`❌ Section ${index + 1} has validation error for question: ${questionId}`);
+
+                    // Try to find and show error message
+                    const errorDivId = 'error-' + questionId;
+                    const errorDiv = document.getElementById(errorDivId);
+
+                    console.log(`Looking for error div: ${errorDivId}`);
+                    console.log(`Found error div:`, errorDiv);
+
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                        errorDiv.classList.add('show');
+                        console.log('✅ Error message displayed');
+                    } else {
+                        console.error(`❌ Error div not found: ${errorDivId}`);
+                    }
+                } else {
+                    console.log(`✅ Section ${index + 1} is valid`);
+                }
+            });
+        }
+
+        // Add all functions to window for easy access
+        window.enableDebugMode = enableDebugMode;
+        window.analyzeFormStructure = analyzeFormStructure;
+        window.testErrorMessages = testErrorMessages;
+        window.testFormValidation = testFormValidation;
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            handleConditionalQuestions();
+            feather.replace();
+
+            // Log for debugging
+            console.log('🎯 PAGE LOADED - FORM INITIALIZATION');
+            console.log('====================================');
+            console.log('Found error divs:', document.querySelectorAll('.error-message').length);
+
+            // Auto-enable debug mode (remove this line in production)
+            // enableDebugMode();
+
+            // Log initial form structure
+            setTimeout(analyzeFormStructure, 1000);
+
+            const form = document.getElementById('surveyForm');
+            const submitButton = document.querySelector('.submit-button');
+            let isSubmitting = false;
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                // Prevent multiple submissions
+                if (isSubmitting) {
+                    return;
+                }
+
+                // First, hide all error messages
+                document.querySelectorAll('.error-message').forEach(errorDiv => {
+                    errorDiv.classList.add('d-none');
+                    errorDiv.classList.remove('show');
+                });
+
+                let hasValidationErrors = false;
+                let firstInvalidField = null;
+
+                // Debug logging
+                console.log('🚀 FORM SUBMISSION STARTED');
+                console.log('===========================');
+                logDebug('Starting form validation...');
+
+                // Get all visible question sections
+                const visibleQuestionSections = Array.from(document.querySelectorAll('.question-section')).filter(section => {
+                    return section.style.display !== 'none';
+                });
+
+                console.log('Found visible question sections:', visibleQuestionSections.length);
+                logDebug('Visible question sections', visibleQuestionSections.length);
+
+                // Track processed radio groups to avoid duplicates
+                const processedRadioGroups = new Set();
+
+                visibleQuestionSections.forEach((questionSection, index) => {
+                    let sectionHasError = false;
+                    let questionId = null;
+
+                    console.log(`Checking section ${index}:`, questionSection);
+                    console.log('Section display:', window.getComputedStyle(questionSection).display);
+                    console.log('Section visibility:', questionSection.offsetHeight > 0);
+
+                    // Check for yes/no radio buttons
+                    const yesNoRadios = questionSection.querySelectorAll('input[type="radio"][required]');
+                    if (yesNoRadios.length > 0) {
+                        const radioName = yesNoRadios[0].name;
+                        console.log('Found radio group:', radioName);
+
+                        // Skip if we already processed this radio group
+                        if (processedRadioGroups.has(radioName)) {
+                            console.log('Already processed radio group:', radioName);
+                            return;
+                        }
+                        processedRadioGroups.add(radioName);
+
+                        const isChecked = Array.from(yesNoRadios).some(radio => radio.checked);
+                        if (!isChecked) {
+                            sectionHasError = true;
+                            questionId = radioName;
+                            console.log('Radio group not checked:', radioName);
+                        }
+                    }
+
+                    // Check for rating questions (hidden inputs)
+                    const ratingInput = questionSection.querySelector('input[type="hidden"][required]');
+                    if (ratingInput && !sectionHasError) {
+                        const isEmpty = !ratingInput.value || ratingInput.value.trim() === '';
+                        if (isEmpty) {
+                            sectionHasError = true;
+                            // Extract question ID from input name (remove _input suffix if present)
+                            questionId = ratingInput.name.replace('_input', '');
+                            console.log('Rating input empty:', questionId);
+                        }
+                    }
+
+                    // Check for text inputs, textareas, and selects
+                    const textFields = questionSection.querySelectorAll('input[type="text"][required], textarea[required], select[required]');
+                    textFields.forEach(field => {
+                        if (!sectionHasError) {
+                            const isEmpty = !field.value || field.value.trim() === '';
+                            if (isEmpty) {
+                                sectionHasError = true;
+                                questionId = field.name || field.id;
+                                console.log('Text field empty:', questionId);
+                            }
+                        }
+                    });
+
+                    // If this section has an error, mark it and show error message
+                    if (sectionHasError && questionId) {
+                        hasValidationErrors = true;
+
+                        console.log('🚨 VALIDATION ERROR DETECTED');
+                        console.log('Question ID:', questionId);
+                        console.log('Section:', questionSection);
+
+                        logDebug('Showing error for question ID', questionId);
+
+                        // Try to find error div with debug logging
+                        const errorDivId = 'error-' + questionId;
+                        console.log('Looking for error div with ID:', errorDivId);
+                        logDebug('Error div ID', errorDivId);
+
+                        const errorDiv = document.getElementById(errorDivId);
+                        console.log('Found error div:', errorDiv);
+
+                        if (errorDiv) {
+                            console.log('✅ Error div found, displaying...');
+                            errorDiv.classList.remove('d-none');
+                            errorDiv.classList.add('show');
+                            console.log('Error message shown for:', questionId);
+                            console.log('Error div final state:', {
+                                display: window.getComputedStyle(errorDiv).display,
+                                classes: errorDiv.className
+                            });
+                            logDebug('Error message displayed successfully', questionId);
+                        } else {
+                            console.error('❌ Error div not found for question ID:', questionId);
+
+                            // Fallback: create and show error message directly in the section
+                            // First, remove any existing fallback errors to avoid duplicates
+                            const existingFallback = questionSection.querySelector('.fallback-error-message');
+                            if (existingFallback) {
+                                existingFallback.remove();
+                            }
+
+                            const fallbackError = document.createElement('div');
+                            fallbackError.className = 'error-message show fallback-error-message';
+                            fallbackError.id = 'fallback-error-' + questionId;
+                            fallbackError.style.cssText = `
+                                margin-top: 8px;
+                                padding: 8px 12px;
+                                background-color: rgba(220, 53, 69, 0.1);
+                                border-left: 4px solid #dc3545;
+                                border-radius: 4px;
+                                color: #dc3545 !important;
+                                font-weight: 600;
+                                font-size: 0.875rem;
+                                animation: slideIn 0.3s ease-out;
+                            `;
+                            fallbackError.innerHTML = '<small class="text-danger" style="color: #dc3545 !important; font-weight: 600;">* Resposta obrigatória!</small>';
+                            questionSection.appendChild(fallbackError);
+                            console.log('✅ Created fallback error message for:', questionId);
+                            logDebug('Fallback error created', questionId);
+                        }
+
+                        // Set first invalid field for scrolling
+                        if (!firstInvalidField) {
+                            firstInvalidField = questionSection;
+                        }
+                    }
+                });
+
+                if (hasValidationErrors) {
+                    if (firstInvalidField) {
+                        // Scroll to the first invalid field
+                        firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Try to focus on the first input in the section
+                        const firstInput = firstInvalidField.querySelector('input, textarea, select');
+                        if (firstInput && firstInput.focus) {
+                            setTimeout(() => firstInput.focus(), 500);
+                        }
+                    }
+                    return;
+                }
+
+                isSubmitting = true;
+
+                // Disable submit button and show loading state
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i data-feather="loader" class="me-2"></i>Enviando...';
+                submitButton.classList.add('loading');
+
+                // Refresh feather icons for the new loader icon
+                feather.replace();
+
+                const formData = new FormData(form);
+
+                // Submit form
+                fetch(`/submit_form/{{ form_id }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(Object.fromEntries(formData))
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to success page
+                        window.location.href = '/success';
+                    } else {
+                        throw new Error(data.error || 'Error submitting form');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocorreu um erro ao enviar o formulário. Tente novamente.');
+
+                    // Re-enable submit button on error
+                    isSubmitting = false;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i data-feather="send" class="me-2"></i>Enviar Formulário';
+                    submitButton.classList.remove('loading');
+                    feather.replace();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

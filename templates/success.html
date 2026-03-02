@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Enviado com Sucesso</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, rgba(139, 201, 186, 0.8) 0%, rgba(139, 201, 186, 0.6) 100%),
+                        url("{{ url_for('static', filename='images/fundo.png') }}") center/cover no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Form-specific background colors */
+        body.form-clientes {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.8) 0%, rgba(138, 43, 226, 0.6) 100%),
+                        url("{{ url_for('static', filename='images/fundo.png') }}") center/cover no-repeat fixed;
+        }
+
+        body.form-fornecedores {
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.8) 0%, rgba(30, 144, 255, 0.6) 100%),
+                        url("{{ url_for('static', filename='images/fundo.png') }}") center/cover no-repeat fixed;
+        }
+        
+        .success-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .success-icon i {
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .success-title {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .success-message {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .success-button {
+            background: linear-gradient(45deg, rgba(139, 201, 186, 1), rgba(139, 201, 186, 0.8));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 201, 186, 0.3);
+        }
+        
+        .success-button:hover {
+            background: linear-gradient(45deg, rgba(139, 201, 186, 0.9), rgba(139, 201, 186, 0.7));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 201, 186, 0.4);
+            color: white;
+        }
+
+        /* Form-specific button colors */
+        body.form-clientes .success-button {
+            background: linear-gradient(45deg, rgba(138, 43, 226, 1), rgba(138, 43, 226, 0.8));
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        body.form-clientes .success-button:hover {
+            background: linear-gradient(45deg, rgba(138, 43, 226, 0.9), rgba(138, 43, 226, 0.7));
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        body.form-fornecedores .success-button {
+            background: linear-gradient(45deg, rgba(30, 144, 255, 1), rgba(30, 144, 255, 0.8));
+            box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+        }
+
+        body.form-fornecedores .success-button:hover {
+            background: linear-gradient(45deg, rgba(30, 144, 255, 0.9), rgba(30, 144, 255, 0.7));
+            box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .floating-particle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: rgba(139, 201, 186, 0.8);
+            border-radius: 50%;
+            animation: float 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.2);
+                opacity: 1;
+            }
+        }
+        
+        .particle-1 { animation-delay: 0s; }
+        .particle-2 { animation-delay: 0.5s; }
+        .particle-3 { animation-delay: 1s; }
+        .particle-4 { animation-delay: 1.5s; }
+        .particle-5 { animation-delay: 2s; }
+    </style>
+</head>
+<body class="form-{{ form_type if form_type else 'guias' }}">
+    <div class="success-container">
+        <div class="success-icon">
+            <i data-feather="check"></i>
+        </div>
+        
+        <h1 class="success-title">Sucesso!</h1>
+        
+        <p class="success-message">
+            Seu formulário foi enviado com sucesso!<br>
+            Sua opinião é muito importante para nós! Te desejamos um dia Top!!!
+        </p>
+        
+        
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize feather icons
+        feather.replace();
+        
+        // Create floating particles effect
+        function createFloatingParticles() {
+            const colors = [
+                'rgba(139, 201, 186, 0.8)',
+                'rgba(139, 201, 186, 0.6)',
+                'rgba(139, 201, 186, 0.4)',
+                'rgba(255, 255, 255, 0.8)',
+                'rgba(255, 255, 255, 0.6)'
+            ];
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = `floating-particle particle-${(i % 5) + 1}`;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                document.body.appendChild(particle);
+            }
+        }
+        
+        // Trigger floating particles when page loads
+        window.addEventListener('load', createFloatingParticles);
+    </script>
+</body>
+</html>

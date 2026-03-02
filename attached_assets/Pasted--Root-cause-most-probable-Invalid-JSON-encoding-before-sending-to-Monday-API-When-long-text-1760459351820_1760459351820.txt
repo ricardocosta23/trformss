@@ -1,0 +1,77 @@
+🎯 Root cause (most probable)
+
+👉 Invalid JSON encoding before sending to Monday API
+
+When long_text answers include quotes, newlines, or special characters, you must wrap the entire dict with json.dumps(column_values) before including it in your GraphQL string.
+
+If you insert the dict directly (e.g. column_values={column_values}), Python will produce single quotes ' instead of ", and Monday’s GraphQL parser will reject the mutation.
+
+Example of what fails:
+
+mutation = f'''
+mutation {{
+  create_item(
+    board_id: {board_id},
+    item_name: "{item_name}",
+    column_values: {column_values}
+  ) {{
+    id
+  }}
+}}
+'''
+
+
+Output in request:
+
+column_values: {'long_text_mksdw43g': 'ITA, boa companhia ...'}
+
+
+❌ Invalid JSON (uses single quotes)
+
+What you must do:
+
+import json
+
+mutation = f'''
+mutation {{
+  create_item(
+    board_id: {board_id},
+    item_name: "{item_name}",
+    column_values: {json.dumps(column_values)}
+  ) {{
+    id
+  }}
+}}
+'''
+
+
+Output in request:
+
+column_values: {"long_text_mksdw43g": "ITA, boa companhia ..."}
+
+
+✅ Valid JSON
+
+🧩 Optional secondary causes to check
+
+If still failing after json.dumps(), also:
+
+Replace local date format '02/10/2025' → '2025-10-02'
+
+Ensure the API token has permission for Board B
+
+If the payload exceeds ~25 KB, consider trimming optional fields (but Monday usually handles this fine)
+
+✅ In short
+Problem	Why first one fails	Fix
+Long text + newlines	Breaks GraphQL if not JSON-encoded	Use json.dumps(column_values)
+Large payload	Unlikely but possible	Use batch updates or trim
+Wrong column IDs	Not the case (same IDs, same schema)	—
+
+So the difference boils down to:
+
+The working one contains only short text and numbers — so the raw dict didn’t break JSON.
+
+The failing one includes long texts with quotes/newlines — which corrupted the GraphQL syntax because column_values wasn’t json.dumps()-encoded.
+
+If you paste me the function where you call requests.post() or construct the mutation, I can show you the exact line to fix (usually one-liner).

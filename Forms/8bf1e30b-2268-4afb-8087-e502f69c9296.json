@@ -1,0 +1,259 @@
+{
+  "id": "8bf1e30b-2268-4afb-8087-e502f69c9296",
+  "type": "clientes",
+  "title": "Formulário de Avaliação - Clientes",
+  "subtitle": "Avalie nossa experiência como cliente",
+  "questions": [
+    {
+      "id": "divider_1752174894752",
+      "type": "divider",
+      "title": "✈️ Malha Aérea",
+      "is_conditional": false
+    },
+    {
+      "id": "malhaaerea",
+      "type": "yesno",
+      "required": true,
+      "text": "Teve malha aérea?",
+      "destination_column": "text_mksv78v8",
+      "is_conditional": false,
+      "source": "manual"
+    },
+    {
+      "id": "service_rating",
+      "type": "rating",
+      "required": true,
+      "text": "Avalie a malha aérea",
+      "destination_column": "numeric_mkrjqam",
+      "conditional": {
+        "depends_on": "malhaaerea",
+        "show_if": "Sim"
+      },
+      "is_conditional": true,
+      "source": "manual"
+    },
+    {
+      "id": "divider_1752174894753",
+      "type": "divider",
+      "title": "🛏️ Hotés",
+      "is_conditional": false
+    },
+    {
+      "id": "question_1752160095686",
+      "type": "monday_column",
+      "required": false,
+      "text": "",
+      "source_column": "text_mkrj9z52",
+      "text_destination_column": "text_mkrjf13y",
+      "rating_destination_column": "numeric_mkrjpfxv",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "Hilton Sorrento Palace",
+      "destination_column": "text_mkrj9z52"
+    },
+    {
+      "id": "question_1752174171731",
+      "type": "monday_column",
+      "required": false,
+      "text": "",
+      "source_column": "text_mkrjz0tf",
+      "text_destination_column": "text_mkrjk4yg",
+      "rating_destination_column": "numeric_mkrjg1ar",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "Borgobianco Resort",
+      "destination_column": "text_mkrjz0tf"
+    },
+    {
+      "id": "question_1752174171799",
+      "type": "monday_column",
+      "required": false,
+      "text": "",
+      "source_column": "text_mkwb3zgv",
+      "text_destination_column": "text_mkwbhmb8",
+      "rating_destination_column": "numeric_mkwbs9zj",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "teste3",
+      "destination_column": "text_mkwb3zgv"
+    },
+    {
+      "id": "question_1752174171798",
+      "type": "monday_column",
+      "required": false,
+      "text": "",
+      "source_column": "text_mkwbkqzn",
+      "text_destination_column": "text_mkwb72y5",
+      "rating_destination_column": "numeric_mkwbspwv",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "",
+      "destination_column": "text_mkwbkqzn"
+    },
+    {
+      "id": "divider_1752174894753",
+      "type": "divider",
+      "title": "🍴Alimentação",
+      "is_conditional": false
+    },
+    {
+      "id": "question_1752174756966",
+      "type": "rating",
+      "required": true,
+      "text": "Como você avalia a sua experiência nos restaurantes durante a viagem?",
+      "destination_column": "numeric_mksqce6j",
+      "is_conditional": false,
+      "source": "manual"
+    },
+    {
+      "id": "divider_1752174909727",
+      "type": "divider",
+      "title": "🚣🏻‍♂️ Passeios",
+      "is_conditional": false
+    },
+    {
+      "id": "question_1752174932540",
+      "type": "monday_column",
+      "required": false,
+      "text": "",
+      "source_column": "dropdown_mksdfja5",
+      "text_destination_column": "text_mksdf2av",
+      "rating_destination_column": "numeric_mkrj6132",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "Tour Capri",
+      "destination_column": "dropdown_mksdfja5"
+    },
+    {
+      "id": "question_1752174958808",
+      "type": "monday_column",
+      "required": false,
+      "text": "",
+      "source_column": "dropdown_mksds964",
+      "text_destination_column": "text_mksd268p",
+      "rating_destination_column": "numeric_mksdsjte",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "Beach Day no L’Incanto Beach Club",
+      "destination_column": "dropdown_mksds964"
+    },
+    {
+      "id": "question_1752174977015",
+      "type": "monday_column",
+      "required": true,
+      "text": "",
+      "source_column": "dropdown_mksdhq4q",
+      "text_destination_column": "text_mksdr0qv",
+      "rating_destination_column": "numeric_mksdyxw2",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "Visita ao Palácio Real de Caserta (Regia di Caserta)",
+      "destination_column": "dropdown_mksdhq4q"
+    },
+    {
+      "id": "question_1752174998832",
+      "type": "monday_column",
+      "required": true,
+      "text": "",
+      "source_column": "dropdown_mksdspz0",
+      "text_destination_column": "text_mksv78v8",
+      "rating_destination_column": "numeric_mkrjqam",
+      "is_conditional": false,
+      "source": "manual",
+      "column_value": "Tour em Alberobello",
+      "destination_column": "dropdown_mksdspz0"
+    },
+    {
+      "id": "question_1752175115236",
+      "type": "longtext",
+      "required": false,
+      "text": "Comentários sobre passeios (se houver)",
+      "destination_column": "long_text_mksvbj9b",
+      "is_conditional": false,
+      "source": "manual"
+    },
+    {
+      "id": "question_1752177353487",
+      "type": "rating",
+      "required": false,
+      "text": "Como você avalia a viagem de forma geral? Você indicaria a Top Service para realização de uma futura viagem? *",
+      "destination_column": "numeric_mkrjv5re",
+      "is_conditional": false,
+      "source": "manual"
+    },
+    {
+      "id": "question_1752177753544",
+      "type": "longtext",
+      "required": false,
+      "text": "Deixe aqui seus comentários, elogios, reclamações ou sugestões:",
+      "destination_column": "long_text_mkrjwfwx",
+      "is_conditional": false,
+      "source": "manual"
+    },
+    {
+      "id": "question_1752177753545",
+      "type": "longtext",
+      "required": false,
+      "text": "Qual destino você gostaria de sugerir para uma próxima viagem?",
+      "destination_column": "long_text_mkrjd4z0",
+      "is_conditional": false,
+      "source": "manual"
+    }
+  ],
+  "webhook_data": {
+    "event": {
+      "app": "monday",
+      "type": "update_column_value",
+      "triggerTime": "2025-10-02T12:36:03.445Z",
+      "subscriptionId": 584284932,
+      "isRetry": true,
+      "userId": 5522044,
+      "originalTriggerUuid": null,
+      "boardId": 9241811459,
+      "groupId": "topics",
+      "pulseId": 18080530021,
+      "pulseName": "Syngenta Puglia",
+      "columnId": "color_mksvwa7a",
+      "columnType": "color",
+      "columnTitle": "Form cliente",
+      "value": {
+        "label": {
+          "index": 2,
+          "text": "Criar form CLIENTES",
+          "style": {
+            "color": "#784bd1",
+            "border": "#8f4dc4",
+            "var_name": "dark-purple"
+          },
+          "is_done": false
+        },
+        "post_id": null
+      },
+      "previousValue": {
+        "label": {
+          "index": 5,
+          "text": null,
+          "style": {
+            "color": "#c4c4c4",
+            "border": "#b0b0b0",
+            "var_name": "grey"
+          },
+          "is_done": false
+        },
+        "post_id": null
+      },
+      "changedAt": 1759408442.948172,
+      "isTopGroup": true,
+      "triggerUuid": "74972051544c64918b1b4b73b47370a4"
+    }
+  },
+  "header_data": {
+    "Viagem": "Syngenta Puglia",
+    "Cliente": "Syngenta",
+    "MirrorColumnValue": "1535",
+    "Destino": "SORRENTO E PUGLIA",
+    "Data": "02/10/2025"
+  },
+  "created_at": "2025-10-02T12:36:13.387076",
+  "is_active": true
+}

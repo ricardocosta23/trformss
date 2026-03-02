@@ -1,0 +1,40 @@
+2025-10-14 13:40:21.40
+e23b7707
+User
+ERROR:root:Monday.com API errors: [{'message': 'invalid value, please check our API documentation for the correct data structure for this column. https://developer.monday.com/api-reference/docs/change-column-values', 'locations': [{'line': 1, 'column': 111}], 'path': ['create_item'], 'extensions': {'code': 'ColumnValueException', 'status_code': 200, 'error_data': {'column_type': 'numeric', 'column_id': 'numeric_mksdwqef', 'column_value': 'aerg', 'column_validation_error_code': '', 'column_name': 'Quantiidade no show'}, 'service': 'monolith'}}]
+2025-10-14 13:40:21.40
+e23b7707
+User
+ERROR:root:Error creating item with values: API errors: [{'message': 'invalid value, please check our API documentation for the correct data structure for this column. https://developer.monday.com/api-reference/docs/change-column-values', 'locations': [{'line': 1, 'column': 111}], 'path': ['create_item'], 'extensions': {'code': 'ColumnValueException', 'status_code': 200, 'error_data': {'column_type': 'numeric', 'column_id': 'numeric_mksdwqef', 'column_value': 'aerg', 'column_validation_error_code': '', 'column_name': 'Quantiidade no show'}, 'service': 'monolith'}}]
+2025-10-14 13:40:21.40
+e23b7707
+User
+ERROR:root:Traceback: Traceback (most recent call last):
+2025-10-14 13:40:21.40
+e23b7707
+User
+File "/home/runner/workspace/utils/monday_api.py", line 500, in create_item_with_values
+2025-10-14 13:40:21.40
+e23b7707
+User
+result = self.execute_query(mutation, variables)
+2025-10-14 13:40:21.40
+e23b7707
+User
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-10-14 13:40:21.40
+e23b7707
+User
+File "/home/runner/workspace/utils/monday_api.py", line 123, in execute_query
+2025-10-14 13:40:21.40
+e23b7707
+User
+raise Exception(f"API errors: {result['errors']}")
+2025-10-14 13:40:21.40
+e23b7707
+User
+Exception: API errors: [{'message': 'invalid value, please check our API documentation for the correct data structure for this column. https://developer.monday.com/api-reference/docs/change-column-values', 'locations': [{'line': 1, 'column': 111}], 'path': ['create_item'], 'extensions': {'code': 'ColumnValueException', 'status_code': 200, 'error_data': {'column_type': 'numeric', 'column_id': 'numeric_mksdwqef', 'column_value': 'aerg', 'column_validation_error_code': '', 'column_name': 'Quantiidade no show'}, 'service': 'monolith'}}]
+2025-10-14 13:40:21.40
+e23b7707
+User
+ERROR:app:Processing - Failed to create item in Board B with values

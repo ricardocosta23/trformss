@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skeleton Form Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Skeleton styles with shimmer animation */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .skeleton-title {
+            height: 30px;
+            width: 60%;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .skeleton-field {
+            margin-bottom: 20px;
+        }
+
+        .skeleton-label {
+            height: 16px;
+            width: 30%;
+            margin-bottom: 8px;
+            border-radius: 3px;
+        }
+
+        .skeleton-input {
+            height: 40px;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .skeleton-textarea {
+            height: 80px;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .skeleton-button {
+            height: 45px;
+            width: 120px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        /* Actual form styles */
+        .form-title {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .form-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .form-button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- Skeleton Loading State -->
+        <div id="skeleton" class="skeleton-container">
+            <div class="skeleton skeleton-title"></div>
+            
+            <div class="skeleton-field">
+                <div class="skeleton skeleton-label"></div>
+                <div class="skeleton skeleton-input"></div>
+            </div>
+            
+            <div class="skeleton-field">
+                <div class="skeleton skeleton-label"></div>
+                <div class="skeleton skeleton-input"></div>
+            </div>
+            
+            <div class="skeleton-field">
+                <div class="skeleton skeleton-label"></div>
+                <div class="skeleton skeleton-input"></div>
+            </div>
+            
+            <div class="skeleton-field">
+                <div class="skeleton skeleton-label"></div>
+                <div class="skeleton skeleton-textarea"></div>
+            </div>
+            
+            <div class="skeleton skeleton-button"></div>
+            
+            <div class="loading-text">Loading form...</div>
+        </div>
+
+        <!-- Actual Form (initially hidden) -->
+        <div id="actualForm" class="hidden">
+            <h2 id="formTitle" class="form-title"></h2>
+            
+            <form id="dynamicForm">
+                <!-- Form fields will be inserted here dynamically -->
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Function to create form fields dynamically
+        function createFormField(field) {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'form-field';
+            
+            const label = document.createElement('label');
+            label.className = 'form-label';
+            label.textContent = field.label;
+            fieldDiv.appendChild(label);
+            
+            let input;
+            
+            switch(field.type) {
+                case 'text':
+                case 'email':
+                    input = document.createElement('input');
+                    input.type = field.type;
+                    input.className = 'form-input';
+                    input.placeholder = field.placeholder || '';
+                    break;
+                    
+                case 'select':
+                    input = document.createElement('select');
+                    input.className = 'form-select';
+                    
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Please select...';
+                    input.appendChild(defaultOption);
+                    
+                    // Add options from field data
+                    field.options.forEach(option => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        input.appendChild(optionElement);
+                    });
+                    break;
+                    
+                case 'textarea':
+                    input = document.createElement('textarea');
+                    input.className = 'form-textarea';
+                    input.placeholder = field.placeholder || '';
+                    break;
+            }
+            
+            fieldDiv.appendChild(input);
+            return fieldDiv;
+        }
+        
+        // Function to load and display the actual form
+        function loadForm() {
+            fetch('/getForm')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Form data received:', data);
+                    
+                    // Update form title
+                    document.getElementById('formTitle').textContent = data.title;
+                    
+                    // Get the form container
+                    const form = document.getElementById('dynamicForm');
+                    
+                    // Clear any existing content
+                    form.innerHTML = '';
+                    
+                    // Add each form field
+                    data.fields.forEach(field => {
+                        const fieldElement = createFormField(field);
+                        form.appendChild(fieldElement);
+                    });
+                    
+                    // Add submit button
+                    const submitButton = document.createElement('button');
+                    submitButton.type = 'submit';
+                    submitButton.className = 'form-button';
+                    submitButton.textContent = 'Submit';
+                    
+                    submitButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        alert('Form submitted! (This is just a demo)');
+                    });
+                    
+                    form.appendChild(submitButton);
+                    
+                    // Hide skeleton and show actual form
+                    document.getElementById('skeleton').classList.add('hidden');
+                    document.getElementById('actualForm').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error loading form:', error);
+                    document.querySelector('.loading-text').textContent = 'Error loading form. Please refresh the page.';
+                });
+        }
+        
+        // Start loading the form when the page loads
+        document.addEventListener('DOMContentLoaded', loadForm);
+    </script>
+</body>
+</html>
