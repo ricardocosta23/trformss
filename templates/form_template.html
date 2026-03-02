@@ -108,18 +108,18 @@
             <!-- Header Section -->
             {% if form_data.header_data %}
             <div class="header-section">
-                <h3><i data-feather="info"></i> Informações da Viagem</h3>
+                <h3><i data-feather="info"></i> Evento:</h3>
                 <div class="header-data">
-                    {% if form_data.header_data.get('Viagem') %}
+                    {% if form_data.header_data.get('Local') %}
                     <div class="header-item">
                         <i data-feather="map-pin" class="header-icon"></i>
-                        <strong>Viagem:</strong> <span class="header-value">{{ form_data.header_data.Viagem }}</span>
+                        <strong>Local:</strong> <span class="header-value">{{ form_data.header_data.Local }}</span>
                     </div>
                     {% endif %}
-                    {% if form_data.header_data.get('Destino') %}
+                    {% if form_data.header_data.get('Cidade') %}
                     <div class="header-item">
                         <i data-feather="navigation" class="header-icon"></i>
-                        <strong>Destino:</strong> <span class="header-value">{{ form_data.header_data.Destino }}</span>
+                        <strong>Cidade:</strong> <span class="header-value">{{ form_data.header_data.Cidade }}</span>
                     </div>
                     {% endif %}
                     {% if form_data.header_data.get('Data') %}
