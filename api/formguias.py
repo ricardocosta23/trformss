@@ -59,6 +59,14 @@ def handle_formguias():
                         # Set default Viagem if item_name is not in header_fields
                         header_data['Viagem'] = item_data.get('name', '')
 
+                        # Map additional specific columns if not in header_fields
+                        additional_mapping = {
+                            'text_mm0vswrr': 'Local',
+                            'text_mm12sr3v': 'Cidade',
+                            'date_mm0v3rx9': 'Data',
+                            'text_mm0vy6n8': 'Cliente'
+                        }
+
                         # Extract column values based on header_fields configuration
                         for field in header_fields_config:
                             title = field.get('title')
@@ -80,6 +88,16 @@ def handle_formguias():
                                         else:
                                             header_data[title] = column_value
                                     break
+
+                        # Extract additional mapping columns
+                        for col_id, title in additional_mapping.items():
+                            if title not in header_data:
+                                for column in item_data.get('column_values', []):
+                                    if column.get('id') == col_id:
+                                        val = monday_api.get_column_value(column)
+                                        if val:
+                                            header_data[title] = val
+                                        break
 
                         # Special case for instructions text
                         for column in item_data.get('column_values', []):
