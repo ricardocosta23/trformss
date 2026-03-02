@@ -60,7 +60,44 @@
         "destination_column": "text_mm126vvt",
         "is_conditional": false,
         "source": "manual"
-      }       
+      },
+
+      {
+        "id": "question_175217775356644",
+        "type": "longtext",
+        "required": false,
+        "text": "Comente como foi sua experiência na função alocada. Gostaríamos de entender o que foi bom, o que pode melhorar e o que foi ruim.",
+        "destination_column": "long_text_mm12grxb",
+        "is_conditional": false,
+        "source": "manual"
+      },
+      {
+        "id": "question_1752177353486998",
+        "type": "rating",
+        "required": false,
+        "text": "Avalie as informações e direcionamento recebidos para realizar seu trabalho neste evento.",
+        "destination_column": "numeric_mm128hjz",
+        "is_conditional": false,
+        "source": "manual"
+      },
+      {
+        "id": "question_175217735348699878",
+        "type": "rating",
+        "required": false,
+        "text": "Avalie o hotel de forma geral para realização de eventos.",
+        "destination_column": "numeric_mm12cgtz",
+        "is_conditional": false,
+        "source": "manual"
+      },
+      {
+        "id": "question_175217775356648764",
+        "type": "longtext",
+        "required": false,
+        "text": "Deixe aqui comentários, elogios e/ou sugestões para um próximo trabalho.",
+        "destination_column": "long_text_mm121za3",
+        "is_conditional": false,
+        "source": "manual"
+      }
     ]
   },
   "clientes": {
