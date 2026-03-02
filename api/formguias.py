@@ -47,47 +47,49 @@ def handle_formguias():
         if guias_config.get('board_a'):
             try:
                 # Extract item ID from webhook data
-                item_id = webhook_data.get('event', {}).get('pulseId')
+                item_id = webhook_data.get('pulseId') or webhook_data.get('event', {}).get('pulseId')
                 if item_id:
                     # Get specific item data from Monday.com using the working method
                     item_data = monday_api.get_item_column_values(item_id)
 
                     if item_data:
-                        # Set Viagem as the item name
+                        # Map specific columns to header fields based on config
+                        header_fields_config = guias_config.get('header_fields', [])
+                        
+                        # Set default Viagem if item_name is not in header_fields
                         header_data['Viagem'] = item_data.get('name', '')
 
-                        # Map specific columns to header fields
-                        column_mapping = {
-                            'lookup_mkrjh91x': 'Destino',
-                            'lookup_mkrjpdz0': 'Data', 
-                            'lookup_mkrb9ns5': 'Cliente',
-                            'lookup_mkrkwqep': 'MirrorColumnValue'  # For destination board
-                        }
+                        # Extract column values based on header_fields configuration
+                        for field in header_fields_config:
+                            title = field.get('title')
+                            monday_column = field.get('monday_column')
+                            
+                            if monday_column == 'item_name':
+                                header_data[title] = item_data.get('name', '')
+                                continue
 
-                        # Extract column values
+                            # Find the column in item_data
+                            for column in item_data.get('column_values', []):
+                                if column.get('id') == monday_column:
+                                    column_value = monday_api.get_column_value(column)
+                                    if column_value:
+                                        # Format dates if needed
+                                        if title.lower() in ['data', 'data da viagem', 'data do serviço', 'data do contrato'] or monday_api.is_date_like(column_value):
+                                            formatted_date = monday_api.format_date_to_dd_mm_yyyy(column_value)
+                                            header_data[title] = formatted_date if formatted_date else column_value
+                                        else:
+                                            header_data[title] = column_value
+                                    break
+
+                        # Special case for instructions text
                         for column in item_data.get('column_values', []):
-                            column_id = column.get('id')
-
-                            # Get instructions text from long_text_mkwb4jzs column
-                            if column_id == 'long_text_mkwb4jzs':
+                            if column.get('id') == 'long_text_mkwb4jzs':
                                 instructions_value = monday_api.get_column_value(column)
                                 if instructions_value and instructions_value.strip():
                                     instructions_text = instructions_value
-                                    logging.info(f"Instructions text found: {instructions_text[:50]}...")
+                                break
 
-                            if column_id in column_mapping:
-                                header_field = column_mapping[column_id]
-                                column_value = monday_api.get_column_value(column)
-                                if column_value:
-                                    # Always format dates in header data to dd/mm/yyyy
-                                    if header_field in ['Data', 'Data da Viagem', 'Data do Serviço', 'Data do Contrato'] or monday_api.is_date_like(column_value):
-                                        formatted_date = monday_api.format_date_to_dd_mm_yyyy(column_value)
-                                        header_data[header_field] = formatted_date if formatted_date else column_value
-                                        logging.info(f"Header date formatted: '{column_value}' -> '{formatted_date}'")
-                                    else:
-                                        header_data[header_field] = column_value
-
-                        logging.info(f"Header data collected: {header_data}")
+                        logging.info(f"Header data collected from config: {header_data}")
             except Exception as e:
                 logging.error(f"Error fetching header data: {str(e)}")
 
@@ -177,19 +179,21 @@ def handle_formguias():
 
         # Update Monday.com board if configured
         # Use board_a (source board) for the form link, since that's where the webhook originates
-        if guias_config.get('board_a') and guias_config.get('link_column'):
+        if guias_config.get('board_a'):
             try:
                 # Extract item ID from webhook data
-                item_id = webhook_data.get('event', {}).get('pulseId')
-                board_id = webhook_data.get('event', {}).get('boardId')
-                if item_id and board_id:
+                item_id = webhook_data.get('pulseId') or webhook_data.get('event', {}).get('pulseId')
+                board_id = "18401175950"
+                column_id = "text_mm12kmh0"
+                
+                if item_id:
                     monday_api.update_item_column(
-                        board_id=board_id,  # Use the board ID from webhook
+                        board_id=board_id,
                         item_id=item_id,
-                        column_id=guias_config['link_column'],
+                        column_id=column_id,
                         value=form_url
                     )
-                    logging.info(f"Updated Monday.com board {board_id} with form URL")
+                    logging.info(f"Updated Monday.com board {board_id} column {column_id} with form URL: {form_url}")
             except Exception as e:
                 logging.error(f"Failed to update Monday.com: {str(e)}")
 
